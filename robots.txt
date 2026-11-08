@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hlanguagesolutions.com/sitemap.xml
