@@ -5894,12 +5894,10 @@ function itemDesc(c){
 }
 function payCart(){
   hideMsg('qMsg');
-  var n=document.getElementById('qName'), em=document.getElementById('qEmail');
-  if(!n.value.trim() || !em.value || !em.checkValidity()){ showMsg('qMsg', X('q_err','Please enter your name and a valid email.')); return; }
   // The browser sends only the customer's choices. The checkout server works out every price.
   var cart=CART.map(function(c){ return {kind:c.kind||'svc', slug:c.slug, qty:c.qty, rush:!!c.rush, mail:!!c.mail, mode:c.mode, ond:!!c.ond, miles:c.miles, parking:c.parking, hours:c.hours, region:c.region, name:itemName(c), description:itemDesc(c)}; });
   var btn=document.getElementById('sumGo'); if(btn) btn.disabled=true;
-  fetch(CONFIG.checkoutEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cart:cart,customer:{name:n.value.trim(),email:em.value.trim()}})})
+  fetch(CONFIG.checkoutEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cart:cart,customer:{}})})
     .then(function(r){ return r.json(); })
     .then(function(d){ if(!d||!d.url) throw new Error('no url'); location.href=d.url; })
     .catch(function(){ if(btn) btn.disabled=false; showMsg('qMsg', X('pay_err','Payment could not start. Please try again or email us.')); });
@@ -5907,6 +5905,7 @@ function payCart(){
 function sendQuote(){
   hideMsg('qMsg');
   var n=document.getElementById('qName'), em=document.getElementById('qEmail');
+  if(!n||!em) return;
   if(!CART.length || !n.value || !em.value || !em.checkValidity()){ showMsg('qMsg', X('q_err','Please enter your name, a valid email and at least one service.')); return; }
   var tot=CART.reduce(function(a,c){return a+cartTotal(c);},0);
   var lines=['Name: '+n.value,'Email: '+em.value,'Phone: '+document.getElementById('qPhone').value,'Notes: '+document.getElementById('qNote').value,'Order:'].concat(cartLines()).concat(['Estimated total: '+money(tot)]);
@@ -6114,7 +6113,7 @@ document.addEventListener('click',function(e){
   var t=e.target;
   var go=t.closest && t.closest('[data-go]'); if(go){ var el=document.getElementById(go.getAttribute('data-go')); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); return; }
   var f=t.closest && t.closest('[data-f]'); if(f){ FILTER=f.getAttribute('data-f'); document.querySelectorAll('[data-f]').forEach(function(b){ b.classList.toggle('on', b===f); }); document.getElementById('svcRoot').innerHTML=listHTML(); return; }
-  var ad=t.closest && t.closest('[data-add]'); if(ad){ var sid=ad.getAttribute('data-add'); var sv=findS(sid); var sd=SVC_DETAIL[sid]||{}; var isInt=(sd.cat==='Interpreting');
+  var ad=t.closest && t.closest('[data-add]'); if(ad){ var sid=ad.getAttribute('data-add'); var sv=findS(sid); if(!sv){ showToast('Please contact us to order this service.'); return; } var sd=SVC_DETAIL[sid]||{}; var isInt=(sd.cat==='Interpreting');
     var v=function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
     var inPopup=ad.classList.contains('sv-add');
     if(isInt && !window.MODE_CHOICE && !inPopup){ showToast(X('err_mode','First choose how the interpreter joins')); return; }
@@ -6205,7 +6204,7 @@ renderSvc(); renderCart(); showState('VA'); calc(); pqCalc(); refresh(); fillCar
 })();
 </script>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="cd-overlay" id="cdOverlay"></div><aside class="cart-drawer" id="cartDrawer" aria-label="Cart"><div class="cd-head"><span class="cd-title">Your cart</span><button type="button" class="cd-close" id="cdClose" aria-label="Close">&times;</button></div><section class="your-order" id="svc-quote"><div class="wrap"><div class="sv-cart yo-box"><h3><span data-x="cart_t">Your order</span></h3><div id="cartBox"></div><div class="cart-total"><span>Subtotal</span><b id="cartTot">$0</b></div><p class="fine trust-note"><span data-x="trust_note">Hamwatan Language Solutions is a private company and is not affiliated with USCIS or any government agency. Acceptance of a translation is decided by the receiving organization.</span></p><p class="fine final-note"><span data-x="final_sale">Your order is a request. We confirm the price and availability by email, and you pay only after you accept the confirmed price.</span> <span data-x="bulk_note">For large orders (many pages or services) we can offer a discount and a custom quote.</span></p>
+<div class="cd-overlay" id="cdOverlay"></div><aside class="cart-drawer" id="cartDrawer" aria-label="Cart"><div class="cd-head"><span class="cd-title">Your cart</span><button type="button" class="cd-close" id="cdClose" aria-label="Close">&times;</button></div><section class="your-order" id="svc-quote"><div class="wrap"><div class="sv-cart yo-box"><h3><span data-x="cart_t">Your order</span></h3><div id="cartBox"></div><div class="cart-total"><span>Subtotal</span><b id="cartTot">$0</b></div><p class="fine trust-note"><span data-x="trust_note">Hamwatan Language Solutions is a private company and is not affiliated with USCIS or any government agency. Acceptance of a translation is decided by the receiving organization.</span></p>
 <div class="yo-actions"><button class="btn primary" type="button" id="sumGo"><span data-x="checkout_go">Proceed to checkout</span></button></div><p class="msg" id="qMsg" hidden></p></div></div></section></aside>
 <div class="sv-overlay" id="svOverlay"></div><div class="sv-modal" id="svModal" role="dialog" aria-modal="true"><button type="button" class="sv-x" id="svX" aria-label="Close">&times;</button><div id="svBody"></div></div>
 

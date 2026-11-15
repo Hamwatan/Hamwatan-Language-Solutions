@@ -85,7 +85,7 @@ export default {
 
     const customer = body.customer || {};
     const email = String(customer.email || '').trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'invalid email' }, 400, cors);
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'invalid email' }, 400, cors);
     const name = String(customer.name || '').trim().slice(0, 120);
 
     // Work out every price here. Anything the browser sent as a price is ignored.
@@ -107,7 +107,7 @@ export default {
     params.set('mode', 'payment');
     params.set('success_url', SITE + '/?paid=1#/quote');
     params.set('cancel_url', SITE + '/#/quote');
-    params.set('customer_email', email);
+    if (email) params.set('customer_email', email);
     params.set('metadata[customer_name]', name);
     params.set('payment_intent_data[statement_descriptor_suffix]', 'HAMWATAN');
     // Partners enter a promo code (for example PARTNER10) created in the Stripe Dashboard.
