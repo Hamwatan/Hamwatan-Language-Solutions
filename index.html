@@ -6144,10 +6144,10 @@ document.addEventListener('click',function(e){
   if(t.closest && t.closest('#cartBtn')){ openCart(); return; }
   if(t.closest && (t.closest('#cdClose')||t.closest('#cdOverlay'))){ closeCart(); return; }
   var scr=t.closest && t.closest('[data-scroll]'); if(scr){ var tgt=document.getElementById(scr.getAttribute('data-scroll')); if(tgt) tgt.scrollIntoView({behavior:'smooth',block:'start'}); return; }
-  if(t.id==='sumGo') checkoutGo();
-  if(t.id==='addDocBtn'){ var ask=document.getElementById('notaryAsk'); if(ask && document.getElementById('doctype').value) ask.hidden=false; }
-  if(t.id==='notaryYes') addDocFromWizard(true);
-  if(t.id==='notaryNo') addDocFromWizard(false);
+  if(t.closest && t.closest('#sumGo')) checkoutGo();
+  if(t.closest && t.closest('#addDocBtn')){ var ask=document.getElementById('notaryAsk'); if(ask && document.getElementById('doctype').value) ask.hidden=false; }
+  if(t.closest && t.closest('#notaryYes')) addDocFromWizard(true);
+  if(t.closest && t.closest('#notaryNo')) addDocFromWizard(false);
   if(t.id==='hpSend') addHireToCart();
   if(t.id==='qSend') sendQuote();
   if(t.id==='pqSend') addPlanToCart();
