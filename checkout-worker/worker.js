@@ -56,6 +56,9 @@ function priceLine(c) {
     if (rush) base *= 1.5;
     return money(base + extra);
   }
+  // Certified delivery adds $15 on top of the mailed copy. Only a mailed page order can have it.
+  if (c.mail && c.intl && (RATE[slug][0] === 'page')) return estimate(slug, qty, rush, false) + 45;
+  if (c.cert && c.mail && (RATE[slug][0] === 'page')) return estimate(slug, qty, rush, true) + 15;
   return estimate(slug, qty, rush, !!c.mail);
 }
 
@@ -112,6 +115,9 @@ export default {
     params.set('payment_intent_data[statement_descriptor_suffix]', 'HAMWATAN');
     // Partners enter a promo code (for example PARTNER10) created in the Stripe Dashboard.
     params.set('allow_promotion_codes', 'true');
+    // Mailed paper copies need a U.S. mailing address, so Stripe collects it when any item asks for mail.
+    if (cart.some(function (c) { return !!c.mail; })) params.set('shipping_address_collection[allowed_countries][0]', 'US');
+    if (cart.some(function (c) { return !!(c.mail && c.intl); })) params.set('shipping_address_collection[allowed_countries][1]', 'CA');
 
     lines.forEach(function (l, i) {
       params.set(`line_items[${i}][quantity]`, '1');
